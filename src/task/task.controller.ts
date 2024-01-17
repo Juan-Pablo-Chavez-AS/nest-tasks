@@ -6,16 +6,31 @@ import {
   Patch,
   Param,
   Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
+import { Task } from './entities/task.entity';
+import { QueryFailedError } from 'typeorm';
 
-@Controller('task')
+@Controller('tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-  create(@Body() createTaskDto) {
-    return this.taskService.create(createTaskDto);
+  async create(@Body() task: Task): Promise<Task> {
+    return await this.taskService.create(task).catch((err) => {
+      if (err instanceof QueryFailedError) {
+        throw new HttpException(
+          {
+            message: `${err.name}: ${err.message}`,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      throw err;
+    });
   }
 
   @Get()
@@ -29,8 +44,8 @@ export class TaskController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto) {
-    return this.taskService.update(+id, updateTaskDto);
+  update(@Param('id') id: string, @Body() task) {
+    return this.taskService.update(+id, task);
   }
 
   @Delete(':id')
