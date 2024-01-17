@@ -6,12 +6,9 @@ import {
   Patch,
   Param,
   Delete,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { Task } from './entities/task.entity';
-import { QueryFailedError } from 'typeorm';
 
 @Controller('tasks')
 export class TaskController {
@@ -19,18 +16,7 @@ export class TaskController {
 
   @Post()
   async create(@Body() task: Task): Promise<Task> {
-    return await this.taskService.create(task).catch((err) => {
-      if (err instanceof QueryFailedError) {
-        throw new HttpException(
-          {
-            message: `${err.name}: ${err.message}`,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      throw err;
-    });
+    return await this.taskService.create(task);
   }
 
   @Get()
