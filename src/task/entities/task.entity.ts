@@ -18,6 +18,6 @@ export class Task {
   @Column({ default: new Date() })
   createdAt: Date;
 
-  @ManyToOne(() => User, (user) => user.tasks)
+  @ManyToOne(() => User, (user) => user.tasks, { nullable: false })
   user: User;
 }
