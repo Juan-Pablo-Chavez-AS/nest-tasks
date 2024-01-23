@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 import { TaskModule } from './task/task.module';
 import { UserModule } from './user/user.module';
+import { ImageBucketService } from './image-bucket/image-bucket.service';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { UserModule } from './user/user.module';
     UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ImageBucketService],
 })
 export class AppModule {
   constructor(private datasource: DataSource) {}
