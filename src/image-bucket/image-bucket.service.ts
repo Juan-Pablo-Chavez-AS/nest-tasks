@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import {
   S3Client,
-  ListBucketsCommand,
-  ListObjectsV2Command,
-  GetObjectCommand,
+  // ListBucketsCommand,
+  // ListObjectsV2Command,
+  // GetObjectCommand,
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { MemoryStoredFile } from 'nestjs-form-data';
 
 @Injectable()
 export class ImageBucketService {
@@ -16,7 +17,7 @@ export class ImageBucketService {
     '61c831572db724707e286ce531a95aa45b2551e807d56aad4f49c7974701f138';
   static readonly bucketName = 'task-poc';
 
-  uploadImage(image: File, name: string) {
+  async uploadImage(image: MemoryStoredFile, name: string) {
     const client = new S3Client({
       region: 'auto',
       endpoint: `https://${ImageBucketService.accountId}.r2.cloudflarestorage.com`,
@@ -25,11 +26,17 @@ export class ImageBucketService {
         secretAccessKey: ImageBucketService.secretAccessKey,
       },
     });
-
     const command = new PutObjectCommand({
       Bucket: ImageBucketService.bucketName,
       Key: `${name}.png`,
     });
-    client.send(command);
+
+    const signedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });
+    const response = await fetch(signedUrl, {
+      method: 'PUT',
+      body: image.buffer,
+    });
+
+    return response;
   }
 }

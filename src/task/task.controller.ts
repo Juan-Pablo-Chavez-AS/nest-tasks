@@ -10,13 +10,24 @@ import {
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { Task } from './entities/task.entity';
+import { FormDataRequest } from 'nestjs-form-data';
+import { ImageBucketService } from 'src/image-bucket/image-bucket.service';
 
 @Controller('tasks')
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(
+    private readonly taskService: TaskService,
+    private readonly imageBuckerService: ImageBucketService,
+  ) {}
 
   @Post()
+  @FormDataRequest()
   async create(@Body() task: Task): Promise<Task> {
+    await this.imageBuckerService.uploadImage(task.image, task.title);
+    task.imageUrl =
+      process.env.BUCKET_DOMAIN + task.title + '.' + task.image.extension;
+
+    delete task.image;
     return await this.taskService.create(task);
   }
 
