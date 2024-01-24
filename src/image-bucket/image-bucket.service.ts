@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  S3Client,
-  // ListBucketsCommand,
-  // ListObjectsV2Command,
-  // GetObjectCommand,
-  PutObjectCommand,
-} from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { MemoryStoredFile } from 'nestjs-form-data';
 
